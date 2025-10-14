@@ -127,8 +127,8 @@ This project includes an automated CI/CD pipeline that builds and deploys the ap
 - ✅ **Appetize Integration** - Deploys to Appetize.io for instant browser testing
 - ✅ **Smart Caching** - 3-layer caching (Java, Flutter SDK, Pub dependencies) for 3-5x faster builds
 - ✅ **Version Management** - Automatic versioning with build numbers from pubspec.yaml
-- ✅ **Artifact Storage** - 30-day APK artifact retention with direct download links
-- ✅ **PR Integration** - Automatic deployment info with APK details in pull request comments
+- ✅ **Artifact Storage** - 30-day APK artifact retention with direct download links via artifact ID
+- ✅ **PR Integration** - Automatic deployment info with direct APK download links in pull request comments
 
 ### ⚡ Build Performance
 
@@ -148,9 +148,9 @@ This project includes an automated CI/CD pipeline that builds and deploys the ap
 2. **Add GitHub Secret**: `APPETIZE_API_TOKEN` (Settings → Secrets → Actions)
 3. **Create pull request to master branch** - Workflow runs automatically
 4. **Check workflow output** - View build results in GitHub Actions tab
-5. **Review deployment** - Check PR comments for live preview URL and download link
+5. **Review deployment** - Check PR comments for live preview URL and direct APK download link
 
-**That's it!** The workflow automatically builds and deploys your app to Appetize.io on every PR to master.
+**That's it!** The workflow automatically builds and deploys your app to Appetize.io on every PR to master, with direct download links using artifact IDs.
 
 ---
 

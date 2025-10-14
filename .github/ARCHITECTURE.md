@@ -99,7 +99,8 @@ The workflow automatically runs on:
 - **Naming**: `personal_expenses-X.Y.Z+BUILD` (e.g., personal_expenses-1.0.0+1)
 - **File**: `personal_expenses-X.Y.Z+BUILD.apk`
 - **Retention**: 30 days
-- **Access**: Via GitHub Actions artifacts with direct download link
+- **Access**: Via GitHub Actions artifacts with direct download link using artifact ID
+- **Direct Download**: Uses GitHub API to fetch artifact ID for one-click download links
 
 ### 5. **Deployment to Appetize.io**
 
@@ -116,18 +117,22 @@ The workflow automatically runs on:
 
 ### 6. **Notifications & Reporting**
 
+#### Artifact ID Retrieval:
+- Uses GitHub API to fetch artifact ID after upload
+- Enables direct download links instead of just workflow page links
+
 #### PR Comments:
 - Automatic comment on pull requests
 - Includes APK name with version
 - Shows version and build number separately
-- Direct download link to artifacts
+- Direct download link to artifacts (using artifact ID for immediate download)
 - Live preview URL from Appetize.io
 
 #### Workflow Summary:
 - APK name with full version
 - Version and build number breakdown
 - Build information
-- Direct download link for APK
+- Direct download link for APK (with artifact ID)
 - Deployment status with live preview URL
 - Artifact links
 
