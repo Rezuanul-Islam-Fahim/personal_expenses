@@ -5,12 +5,12 @@ import '../models/expense.dart';
 import 'chartbar.dart';
 
 class Chart extends StatelessWidget {
-  const Chart(this.txList);
+  const Chart(this.txList, {super.key});
 
   final List<Expense> txList;
 
   List<Expense> get recentTransaction {
-    DateTime sevenDaysAgo = DateTime.now().subtract(Duration(days: 7));
+    DateTime sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
     return txList.where((Expense tx) {
       return tx.date.isAfter(sevenDaysAgo);
@@ -22,9 +22,9 @@ class Chart extends StatelessWidget {
       DateTime date = DateTime.now().subtract(Duration(days: index));
       double amount = 0;
 
-      recentTransaction.forEach((Expense tx) {
+      for (var tx in recentTransaction) {
         if (date.day == tx.date.day) amount += tx.amount;
-      });
+      }
 
       return {
         'amount': amount.toStringAsFixed(0),
@@ -36,20 +36,27 @@ class Chart extends StatelessWidget {
   double get highestSpending {
     double amount = 0;
 
-    groupedTransaction.forEach((tx) {
-      if (double.parse(tx['amount']) > amount) {
-        amount = double.parse(tx['amount']);
+    for (var tx in groupedTransaction) {
+      if (double.parse(tx['amount'] as String) > amount) {
+        amount = double.parse(tx['amount'] as String);
       }
-    });
+    }
 
     return amount;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Card(
+        margin: const EdgeInsets.only(
+          top: 15,
+          left: 20,
+          right: 20,
+          bottom: 10,
+        ),
+        elevation: 1,
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: Row(
@@ -61,13 +68,6 @@ class Chart extends StatelessWidget {
             }),
           ),
         ),
-        margin: const EdgeInsets.only(
-          top: 15,
-          left: 20,
-          right: 20,
-          bottom: 10,
-        ),
-        elevation: 1,
       ),
     );
   }

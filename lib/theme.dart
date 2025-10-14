@@ -3,33 +3,37 @@ import 'package:flutter/material.dart';
 ThemeData get appTheme => ThemeData(
       scaffoldBackgroundColor: Colors.grey[200],
       primarySwatch: Colors.indigo,
-      accentColor: Colors.blueGrey,
+      colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: Colors.indigo,
+        accentColor: Colors.blueGrey,
+      ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       fontFamily: 'Quicksand',
       appBarTheme: ThemeData.light().appBarTheme.copyWith(
-            textTheme: ThemeData.light().textTheme.copyWith(
-                  headline6: const TextStyle(
-                    fontFamily: 'OpenSans',
-                    fontSize: 19,
-                  ),
-                ),
-            brightness: Brightness.dark,
+            titleTextStyle: const TextStyle(
+              fontFamily: 'OpenSans',
+              fontSize: 19,
+              fontWeight: FontWeight.normal,
+              color: Colors.white,
+            ),
+            backgroundColor: Colors.indigo,
+            foregroundColor: Colors.white,
           ),
       textTheme: ThemeData.light().textTheme.copyWith(
-            headline3: TextStyle(
+            displaySmall: TextStyle(
               color: Colors.grey[800],
               fontSize: 19,
               fontWeight: FontWeight.w800,
             ),
-            headline4: const TextStyle(
+            displayMedium: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w800,
             ),
-            headline5: const TextStyle(
+            headlineSmall: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),
-            headline6: const TextStyle(
+            titleLarge: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),

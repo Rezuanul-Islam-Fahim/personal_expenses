@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class Expense {
   final int id;
   final String title;
@@ -7,9 +5,9 @@ class Expense {
   final DateTime date;
 
   const Expense({
-    @required this.id,
-    @required this.title,
-    @required this.amount,
-    @required this.date,
+    required this.id,
+    required this.title,
+    required this.amount,
+    required this.date,
   });
 }

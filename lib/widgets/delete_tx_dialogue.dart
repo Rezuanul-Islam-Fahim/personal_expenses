@@ -11,28 +11,33 @@ class DeleteTx {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Delete Transaction'),
+          title: const Text('Delete Transaction'),
           actions: <Widget>[
-            FlatButton(
-              child: Text('Cancel'),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(3),
-                side: BorderSide(
-                  color: Theme.of(context).primaryColor,
-                  width: 1,
+            TextButton(
+              child: const Text('Cancel'),
+              style: TextButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(3),
+                  side: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 1,
+                  ),
                 ),
               ),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            SizedBox(width: 1),
-            FlatButton(
-              child: Text('Delete'),
-              color: Colors.redAccent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(3),
-                side: BorderSide(
-                  color: Colors.redAccent,
-                  width: 1,
+            const SizedBox(width: 1),
+            TextButton(
+              child: const Text('Delete'),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(3),
+                  side: const BorderSide(
+                    color: Colors.redAccent,
+                    width: 1,
+                  ),
                 ),
               ),
               onPressed: () {
@@ -41,7 +46,7 @@ class DeleteTx {
               },
             ),
           ],
-          actionsPadding: EdgeInsets.only(right: 10, bottom: 5),
+          actionsPadding: const EdgeInsets.only(right: 10, bottom: 5),
         );
       },
     );

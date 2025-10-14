@@ -5,7 +5,7 @@ import '../models/expense.dart';
 import '../widgets/delete_tx_dialogue.dart';
 
 class TxListItem extends StatelessWidget {
-  const TxListItem(this.txItem, this.handler);
+  const TxListItem(this.txItem, this.handler, {super.key});
 
   final Expense txItem;
   final Function handler;
@@ -14,14 +14,14 @@ class TxListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(40),
           side: BorderSide(
             width: 1,
-            color: Colors.grey[300].withOpacity(0.7),
+            color: Colors.grey[300]!.withValues(alpha: 0.7),
           ),
         ),
         margin: const EdgeInsets.symmetric(
@@ -69,7 +69,7 @@ class TxListItem extends StatelessWidget {
                         children: <Widget>[
                           Text(
                             txItem.title,
-                            style: Theme.of(context).textTheme.headline5,
+                            style: Theme.of(context).textTheme.headlineSmall,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 3),
@@ -90,20 +90,23 @@ class TxListItem extends StatelessWidget {
                 ),
               ),
               mediaQuery.size.width > 450
-                  ? FlatButton.icon(
+                  ? TextButton.icon(
                       icon: const Icon(Icons.delete, size: 22),
-                      label: Text(
+                      label: const Text(
                         'Delete',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Quicksand',
                         ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        foregroundColor:
+                            Theme.of(context).colorScheme.secondary,
                       ),
-                      textColor: Theme.of(context).accentColor,
                       onPressed: () {
                         DeleteTx(
                           txItem.id,
@@ -114,7 +117,7 @@ class TxListItem extends StatelessWidget {
                   : IconButton(
                       icon: const Icon(Icons.delete),
                       iconSize: 22,
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                       onPressed: () {
                         DeleteTx(
                           txItem.id,
