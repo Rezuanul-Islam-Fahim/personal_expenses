@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../global.dart';
 
 class ChartBar extends StatelessWidget {
-  const ChartBar(this.txDetails, this.highestSpending);
+  const ChartBar(this.txDetails, this.highestSpending, {super.key});
 
   final Map<String, Object> txDetails;
   final double highestSpending;
@@ -16,7 +16,7 @@ class ChartBar extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       return Column(
         children: <Widget>[
-          Container(
+          SizedBox(
             height: constraints.maxHeight * 0.15,
             child: isLandscape
                 ? Text(
@@ -31,7 +31,7 @@ class ChartBar extends StatelessWidget {
                   ),
           ),
           SizedBox(height: constraints.maxHeight * 0.05),
-          Container(
+          SizedBox(
             width: 10,
             height: constraints.maxHeight * 0.6,
             child: Stack(
@@ -40,13 +40,14 @@ class ChartBar extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.grey[200]),
+                    border: Border.all(color: Colors.grey[200]!),
                     color: Colors.grey[100],
                   ),
                 ),
                 FractionallySizedBox(
                   heightFactor: highestSpending > 0
-                      ? double.parse(txDetails['amount']) / highestSpending
+                      ? double.parse(txDetails['amount'] as String) /
+                          highestSpending
                       : 0,
                   child: Container(
                     decoration: BoxDecoration(
@@ -59,16 +60,16 @@ class ChartBar extends StatelessWidget {
             ),
           ),
           SizedBox(height: constraints.maxHeight * 0.05),
-          Container(
+          SizedBox(
             height: constraints.maxHeight * 0.15,
             child: isLandscape
                 ? Text(
-                    txDetails['weekDay'],
+                    txDetails['weekDay'] as String,
                     style: chartbarFontLandscape(14),
                   )
                 : FittedBox(
                     child: Text(
-                      txDetails['weekDay'],
+                      txDetails['weekDay'] as String,
                       style: chartbarFontPortrait(),
                     ),
                   ),

@@ -25,7 +25,7 @@ class PersonalExpenses extends StatelessWidget {
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key key, this.title}) : super(key: key);
+  const HomeScreen({super.key, required this.title});
 
   final String title;
 
@@ -60,10 +60,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return List.generate(transactions.length, (index) {
       return Expense(
-        id: transactions[index]['id'],
-        title: transactions[index]['title'],
-        amount: transactions[index]['amount'],
-        date: DateTime.parse(transactions[index]['date']),
+        id: transactions[index]['id'] as int,
+        title: transactions[index]['title'] as String,
+        amount: transactions[index]['amount'] as double,
+        date: DateTime.parse(transactions[index]['date'] as String),
       );
     }).toList();
   }
@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: <Widget>[
               Text(
                 'Show Chart',
-                style: Theme.of(context).textTheme.headline5,
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
               Switch.adaptive(
                 value: showChart,

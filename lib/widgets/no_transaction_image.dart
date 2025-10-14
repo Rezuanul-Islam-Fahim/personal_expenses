@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class NoTransactionImage extends StatelessWidget {
-  const NoTransactionImage(this.isLandscape);
+  const NoTransactionImage(this.isLandscape, {super.key});
 
   final bool isLandscape;
 
@@ -16,7 +16,7 @@ class NoTransactionImage extends StatelessWidget {
           children: <Widget>[
             Text(
               'No Transaction Added Yet!',
-              style: Theme.of(context).textTheme.headline3,
+              style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 20),
             Image.asset(

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../global.dart';
 
 class AddTransaction extends StatefulWidget {
-  const AddTransaction(this.handler);
+  const AddTransaction(this.handler, {super.key});
 
   final Function handler;
 
@@ -15,7 +15,7 @@ class AddTransaction extends StatefulWidget {
 class _AddTransactionState extends State<AddTransaction> {
   var titleController = TextEditingController();
   var amountController = TextEditingController();
-  DateTime selectedDate;
+  DateTime? selectedDate;
 
   void startDatePicker(BuildContext context) {
     showDatePicker(
@@ -24,16 +24,17 @@ class _AddTransactionState extends State<AddTransaction> {
       lastDate: DateTime.now(),
       initialDate: DateTime.now(),
     ).then((date) {
-      if (date == null)
+      if (date == null) {
         return;
-      else
+      } else {
         setState(() => selectedDate = date);
+      }
     });
   }
 
   void addTx() {
     var enteredText = titleController.text;
-    var enteredAmount = double.parse(amountController.text);
+    var enteredAmount = double.tryParse(amountController.text) ?? 0.0;
 
     if (enteredText.isEmpty ||
         enteredAmount.isNaN ||
@@ -78,12 +79,12 @@ class _AddTransactionState extends State<AddTransaction> {
                   child: Text(
                     selectedDate == null
                         ? 'No Date Chosen'
-                        : 'Picked Date: ${DateFormat('dd/MM/yy').format(selectedDate)}',
-                    style: Theme.of(context).textTheme.headline6,
+                        : 'Picked Date: ${DateFormat('dd/MM/yy').format(selectedDate!)}',
+                    style: Theme.of(context).textTheme.titleLarge,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                FlatButton(
+                TextButton(
                   child: Text(
                     'Choose Date',
                     style: TextStyle(
@@ -94,8 +95,10 @@ class _AddTransactionState extends State<AddTransaction> {
                       letterSpacing: 0.4,
                     ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
                   onPressed: () => startDatePicker(context),
                 ),
@@ -103,24 +106,26 @@ class _AddTransactionState extends State<AddTransaction> {
             ),
             Container(
               alignment: Alignment.centerRight,
-              child: RaisedButton(
+              child: ElevatedButton(
                 child: const Text(
                   'Add Transaction',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontFamily: 'Quicksand',
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
                   ),
                 ),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 13,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 13,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
                 onPressed: addTx,
               ),
