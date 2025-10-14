@@ -54,7 +54,7 @@ The workflow automatically runs on:
 ### 2. **Environment Setup**
 - **OS**: Ubuntu Latest
 - **Java**: Version 17 (Zulu distribution) with Gradle caching
-- **Flutter**: Version 3.24.5 (stable channel) with Flutter SDK caching
+- **Flutter**: Version 3.35.6 (stable channel) with Flutter SDK caching
 - **Pub Dependencies**: Cached based on pubspec.lock hash
 - **Caching Strategy**: Multi-layer caching for Java, Flutter SDK, and Pub dependencies
 

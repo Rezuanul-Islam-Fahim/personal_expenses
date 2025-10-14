@@ -77,7 +77,7 @@ A beautiful and efficient personal expense tracking mobile application built wit
 
 Before you begin, ensure you have the following installed:
 
-- **Flutter SDK** (3.24.5 or higher)
+- **Flutter SDK** (3.35.6 or higher)
   ```bash
   flutter --version
   ```
