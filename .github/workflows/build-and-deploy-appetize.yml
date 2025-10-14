@@ -1,0 +1,191 @@
+name: Build and Deploy to Appetize.io
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build APK and Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ${{ github.workspace }}/.dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Verify Flutter installation
+        run: |
+          flutter --version
+          flutter doctor -v
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Get version info
+        id: version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}' | cut -d '+' -f 1)
+          BUILD=$(grep 'version:' pubspec.yaml | awk '{print $2}' | cut -d '+' -f 2)
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "BUILD=$BUILD" >> $GITHUB_OUTPUT
+          echo "FULL_VERSION=$VERSION+$BUILD" >> $GITHUB_OUTPUT
+
+      - name: Rename APK with version
+        run: |
+          cd build/app/outputs/flutter-apk
+          mv app-release.apk personal_expenses-${{ steps.version.outputs.FULL_VERSION }}.apk
+          ls -lh
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: personal_expenses-${{ steps.version.outputs.FULL_VERSION }}
+          path: build/app/outputs/flutter-apk/personal_expenses-${{ steps.version.outputs.FULL_VERSION }}.apk
+          retention-days: 30
+
+      - name: Deploy to Appetize.io
+        if: github.event_name == 'pull_request'
+        id: appetize
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+        run: |
+          APK_FILE="build/app/outputs/flutter-apk/personal_expenses-${{ steps.version.outputs.FULL_VERSION }}.apk"
+          
+          if [ -z "$APPETIZE_API_TOKEN" ]; then
+            echo "⚠️ APPETIZE_API_TOKEN not set. Skipping deployment."
+            echo "To deploy to Appetize.io, add APPETIZE_API_TOKEN to your repository secrets."
+            exit 0
+          fi
+          
+          echo "📱 Deploying $APK_FILE to Appetize.io..."
+          
+          # Check if app already exists by trying to get app info
+          # For first time deployment, we'll create a new app
+          # For updates, we'll update the existing app
+          
+          # Try to create/update the app
+          RESPONSE=$(curl -sS --location 'https://api.appetize.io/v1/apps' \
+            --header "Authorization: Bearer $APPETIZE_API_TOKEN" \
+            --form "file=@$APK_FILE" \
+            --form 'platform="android"' \
+            --form 'note="Personal Expenses App v${{ steps.version.outputs.FULL_VERSION }} - PR #${{ github.event.pull_request.number }}"')
+          
+          PUBLIC_KEY=$(echo $RESPONSE | jq -r '.publicKey // empty')
+          
+          if [ -n "$PUBLIC_KEY" ]; then
+            echo "✅ Successfully deployed to Appetize.io"
+            echo "🔗 App URL: https://appetize.io/app/$PUBLIC_KEY"
+            echo "APPETIZE_URL=https://appetize.io/app/$PUBLIC_KEY" >> $GITHUB_ENV
+            echo "PUBLIC_KEY=$PUBLIC_KEY" >> $GITHUB_ENV
+            echo "appetize_url=https://appetize.io/app/$PUBLIC_KEY" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Deployment response received, checking for existing app..."
+            echo "Response: $RESPONSE"
+            
+            # If publicKey is in response but extraction failed, try alternative parsing
+            PUBLIC_KEY=$(echo $RESPONSE | grep -o '"publicKey":"[^"]*"' | cut -d'"' -f4)
+            
+            if [ -n "$PUBLIC_KEY" ]; then
+              echo "✅ App updated successfully"
+              echo "🔗 App URL: https://appetize.io/app/$PUBLIC_KEY"
+              echo "APPETIZE_URL=https://appetize.io/app/$PUBLIC_KEY" >> $GITHUB_ENV
+              echo "PUBLIC_KEY=$PUBLIC_KEY" >> $GITHUB_ENV
+              echo "appetize_url=https://appetize.io/app/$PUBLIC_KEY" >> $GITHUB_OUTPUT
+            else
+              echo "❌ Failed to deploy to Appetize.io"
+              exit 1
+            fi
+          fi
+
+      - name: Comment on PR with deployment info
+        if: github.event_name == 'pull_request' && env.APPETIZE_URL != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const appetizeUrl = process.env.APPETIZE_URL;
+            const version = '${{ steps.version.outputs.VERSION }}';
+            const build = '${{ steps.version.outputs.BUILD }}';
+            const fullVersion = '${{ steps.version.outputs.FULL_VERSION }}';
+            const apkName = `personal_expenses-${fullVersion}.apk`;
+            const artifactUrl = `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
+            
+            const body = `## 🚀 Deployment Preview Ready!
+            
+            **APK Name:** \`${apkName}\`  
+            **Version:** \`${version}\`  
+            **Build Number:** \`${build}\`  
+            **Branch:** \`${{ github.head_ref }}\`
+            
+            ### 📱 Try it now on Appetize.io:
+            [**🔗 Launch App in Browser**](${appetizeUrl})
+            
+            ### 📦 Download APK:
+            [**⬇️ Download from Artifacts**](${artifactUrl})
+            
+            ---
+            *Built with ❤️ using GitHub Actions*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+      - name: Create deployment summary
+        if: always()
+        run: |
+          echo "# 📊 Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔨 Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **APK Name:** \`personal_expenses-${{ steps.version.outputs.FULL_VERSION }}.apk\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** \`${{ steps.version.outputs.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Number:** \`${{ steps.version.outputs.BUILD }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "${{ env.APPETIZE_URL }}" ]; then
+            echo "## 🌐 Appetize.io Deployment" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Successfully deployed!" >> $GITHUB_STEP_SUMMARY
+            echo "- **Live Preview URL:** [${{ env.APPETIZE_URL }}](${{ env.APPETIZE_URL }})" >> $GITHUB_STEP_SUMMARY
+            echo "- **Public Key:** \`${{ env.PUBLIC_KEY }}\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ⚠️ Appetize.io Deployment" >> $GITHUB_STEP_SUMMARY
+            echo "Skipped (APPETIZE_API_TOKEN not configured or deployment failed)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact Name:** \`personal_expenses-${{ steps.version.outputs.FULL_VERSION }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Download APK:** [Click here to download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
