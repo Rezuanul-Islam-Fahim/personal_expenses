@@ -125,10 +125,12 @@ This project includes an automated CI/CD pipeline that builds and deploys the ap
 
 - ✅ **Automatic APK Building** - Builds universal release APK on pull requests to master
 - ✅ **Appetize Integration** - Deploys to Appetize.io for instant browser testing
+- ✅ **Smart App Management** - Creates new apps or updates existing ones based on APPETIZE_PUBLIC_KEY
 - ✅ **Smart Caching** - 3-layer caching (Java, Flutter SDK, Pub dependencies) for 3-5x faster builds
 - ✅ **Version Management** - Automatic versioning with build numbers from pubspec.yaml
 - ✅ **Artifact Storage** - 30-day APK artifact retention with direct download links via artifact ID
 - ✅ **PR Integration** - Automatic deployment info with direct APK download links in pull request comments
+- ✅ **First-Time Setup Helper** - Automatic instructions for saving public key on first deployment
 
 ### ⚡ Build Performance
 
@@ -148,9 +150,22 @@ This project includes an automated CI/CD pipeline that builds and deploys the ap
 2. **Add GitHub Secret**: `APPETIZE_API_TOKEN` (Settings → Secrets → Actions)
 3. **Create pull request to master branch** - Workflow runs automatically
 4. **Check workflow output** - View build results in GitHub Actions tab
-5. **Review deployment** - Check PR comments for live preview URL and direct APK download link
+5. **Save public key** (first deployment only):
+   - Check workflow summary for the public key
+   - Add `APPETIZE_PUBLIC_KEY` to GitHub Secrets
+   - Future deployments will update the same app
+6. **Review deployment** - Check PR comments for live preview URL and direct APK download link
 
 **That's it!** The workflow automatically builds and deploys your app to Appetize.io on every PR to master, with direct download links using artifact IDs.
+
+### 🔑 Required Secrets
+
+| Secret Name | Required | Purpose |
+|-------------|----------|---------|
+| `APPETIZE_API_TOKEN` | ✅ Yes | Authenticates with Appetize.io API |
+| `APPETIZE_PUBLIC_KEY` | ⚠️ Recommended | Updates existing app (prevents creating new instances) |
+
+> **Note**: Without `APPETIZE_PUBLIC_KEY`, each deployment creates a new app. Add it after first deployment to enable app updates.
 
 ---
 

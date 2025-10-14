@@ -105,15 +105,22 @@ The workflow automatically runs on:
 ### 5. **Deployment to Appetize.io**
 
 #### Conditions:
-- Only on `pull_request` events
+- Runs on both `pull_request` events and `workflow_dispatch`
 - Requires `APPETIZE_API_TOKEN` secret
+- Optional `APPETIZE_PUBLIC_KEY` secret for app updates
 
 #### Process:
-1. Selects the universal release APK
-2. Uploads to Appetize.io via API (supports first-time deployment and updates)
-3. Receives public key for the deployed app
-4. Generates shareable URL
-5. Handles both new app creation and existing app updates
+1. **Check for existing app**: Determines if `APPETIZE_PUBLIC_KEY` secret exists
+2. **First-time deployment** (if no public key exists):
+   - Uploads APK to Appetize.io using Basic Authentication (`-u "token:"`)
+   - Receives `publicKey` and `publicURL` from response
+   - Displays warning to save public key for future updates
+3. **Update existing app** (if public key exists):
+   - Updates existing app using saved public key
+   - Uses endpoint: `POST /v1/apps/{publicKey}`
+   - Preserves app history and settings
+4. **Deployment info aggregation**: Consolidates public key and URL from either path
+5. **Generates shareable URL**: Creates live preview link from publicURL
 
 ### 6. **Notifications & Reporting**
 
@@ -126,29 +133,48 @@ The workflow automatically runs on:
 - Includes APK name with version
 - Shows version and build number separately
 - Direct download link to artifacts (using artifact ID for immediate download)
-- Live preview URL from Appetize.io
+- Live preview URL from Appetize.io (using publicURL from API response)
+- Clean, formatted deployment information
 
 #### Workflow Summary:
 - APK name with full version
 - Version and build number breakdown
-- Build information
+- Build information (branch, commit SHA)
 - Direct download link for APK (with artifact ID)
-- Deployment status with live preview URL
-- Artifact links
+- Deployment status with live preview URL (from publicURL)
+- First-time deployment warning with instructions to save public key
+- Step-by-step guide for adding APPETIZE_PUBLIC_KEY secret
 
 ## Security
 
 ### Secrets Required:
-- `APPETIZE_API_TOKEN`: Token for Appetize.io deployment (optional)
+- `APPETIZE_API_TOKEN`: Token for Appetize.io deployment (required)
+- `APPETIZE_PUBLIC_KEY`: Public key from first deployment (optional, for app updates)
 
 ### Token Setup:
-1. Create account on [Appetize.io](https://appetize.io)
-2. Generate API token from account settings
-3. Add to GitHub repository secrets:
-   - Go to: Settings → Secrets and variables → Actions
-   - Click "New repository secret"
-   - Name: `APPETIZE_API_TOKEN`
-   - Value: Your token
+1. **APPETIZE_API_TOKEN** (Required):
+   - Create account on [Appetize.io](https://appetize.io)
+   - Generate API token from account settings
+   - Add to GitHub repository secrets:
+     - Go to: Settings → Secrets and variables → Actions
+     - Click "New repository secret"
+     - Name: `APPETIZE_API_TOKEN`
+     - Value: Your token
+
+2. **APPETIZE_PUBLIC_KEY** (Optional, but recommended):
+   - After first successful deployment, workflow will display the public key
+   - Copy the public key from workflow summary
+   - Add to GitHub repository secrets:
+     - Go to: Settings → Secrets and variables → Actions
+     - Click "New repository secret"
+     - Name: `APPETIZE_PUBLIC_KEY`
+     - Value: The public key from first deployment
+   - **Purpose**: Enables app updates instead of creating new apps each time
+   - **Without this**: Each deployment creates a new app instance
+
+### Authentication Method:
+- **API Authentication**: Uses Basic Authentication format (`-u "token:"`)
+- **Not Bearer Token**: Appetize API requires Basic Auth, not `Authorization: Bearer`
 
 ## Performance Optimization
 
@@ -192,9 +218,16 @@ The workflow automatically runs on:
 
 ### Common Issues:
 1. **Build Failures**: Check Flutter/Java versions
-2. **Deployment Failures**: Verify APPETIZE_API_TOKEN
+2. **Deployment Failures**: 
+   - Verify APPETIZE_API_TOKEN is set correctly
+   - Check API authentication format (Basic Auth, not Bearer)
+   - Review Appetize.io API response in workflow logs
 3. **Cache Issues**: Clear cache and re-run (rarely needed with proper cache keys)
 4. **Version Parsing**: Ensure pubspec.yaml has correct version format (X.Y.Z+BUILD)
+5. **App Update Issues**: 
+   - Ensure APPETIZE_PUBLIC_KEY is saved from first deployment
+   - Verify public key matches the app you want to update
+6. **Multiple App Instances**: Add APPETIZE_PUBLIC_KEY to prevent creating new apps
 
 ## Extensibility
 
@@ -216,11 +249,18 @@ The workflow automatically runs on:
 
 1. **Version Bumping**: Update version in `pubspec.yaml` before creating PR (format: `X.Y.Z+BUILD`)
 2. **Build Numbers**: Increment build number (+BUILD) for each release
-3. **Secrets**: Never commit API tokens or keys
+3. **Secrets Management**: 
+   - Never commit API tokens or keys
+   - Save APPETIZE_PUBLIC_KEY after first deployment to enable app updates
+   - Keep both APPETIZE_API_TOKEN and APPETIZE_PUBLIC_KEY in GitHub Secrets
 4. **Documentation**: Update this file when workflow changes
 5. **Monitoring**: Regularly check workflow runs for failures
 6. **Cache Management**: Let GitHub manage cache invalidation automatically
 7. **PR Reviews**: Check deployment preview before merging
+8. **First Deployment**: 
+   - Check workflow summary for public key
+   - Add public key to secrets immediately
+   - Subsequent deployments will update the same app
 
 ## Resources
 
