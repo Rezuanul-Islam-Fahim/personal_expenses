@@ -13,8 +13,7 @@ A beautiful and efficient personal expense tracking mobile application built wit
 
 ### 🚀 Try it Live
 
-[![Live Demo](https://img.shields.io/badge/Try%20Live%20Demo-Appetize.io-brightgreen?style=for-the-badge&logo=google-play)](#)
-[![Download APK](https://img.shields.io/badge/Download-APK-blue?style=for-the-badge&logo=android)](https://drive.google.com/file/d/1yFQ0ne-uZnVGWa4-omEwpYT20W8gTaFm/view?usp=sharing)
+[![Live Demo](https://img.shields.io/badge/Try%20Live%20Demo-Appetize.io-brightgreen?style=for-the-badge&logo=google-play)](https://appetize.io/app/eacz5dyy77t5g4bsdqimarxuxa)
 
 ### ⭐ Support this project
 
@@ -142,7 +141,6 @@ This project includes an automated CI/CD pipeline that builds and deploys the ap
 ### 📚 Documentation
 
 - **[Architecture Diagram](.github/ARCHITECTURE.md)** - Visual workflow overview and pipeline stages
-- **[Contributing Guide](.github/CONTRIBUTING.md)** - Development setup and guidelines
 
 ### 🎯 Quick Start CI/CD
 
@@ -247,8 +245,6 @@ Contributions are what make the open-source community such an amazing place to l
 - Write meaningful commit messages (Conventional Commits)
 - Add comments for complex logic
 - Update documentation as needed
-
-See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
